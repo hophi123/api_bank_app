@@ -13,10 +13,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vnext.phinh.api_bank_app.bean.ResultBean;
@@ -78,13 +78,13 @@ public class TransactionController {
      * @return ResponseEntity<ResultBean>
      * @throws ParseException
      */
-    @RequestMapping(value = "/trans/add/{id}", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<ResultBean> addMoney(@RequestBody String json, @PathVariable Integer id) throws ParseException {
+    @RequestMapping(value = "/trans/add", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<ResultBean> addMoney(@RequestBody String json, @RequestParam Integer id_acc) throws ParseException {
         log.debug("### addMoney start ###");
         ResultBean resultBean = null;
         TransactionEntity transactionEntity = null;
         try {
-            transactionEntity = transService.addMoney(id, json);
+            transactionEntity = transService.addMoney(id_acc, json);
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -106,12 +106,12 @@ public class TransactionController {
      * @throws ParseException
      */
     @RequestMapping(value = "/trans/withdraw", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<ResultBean> withdraw(@RequestBody String json) throws ParseException {
+    public ResponseEntity<ResultBean> withdraw(@RequestBody String json, @RequestParam Integer id_acc) throws ParseException {
         log.debug("### withdraw start ###");
         ResultBean resultBean = null;
         TransactionEntity transactionEntity = null;
         try {
-            transactionEntity = transService.withdraw(json);
+            transactionEntity = transService.withdraw(id_acc, json);
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -133,12 +133,12 @@ public class TransactionController {
      * @throws ParseException
      */
     @RequestMapping(value = "/trans/transfer", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<ResultBean> transfer(@RequestBody String json) throws ParseException {
+    public ResponseEntity<ResultBean> transfer(@RequestBody String json, @RequestParam Integer id_acc_from) throws ParseException {
         log.debug("### transfer start ###");
         ResultBean resultBean = null;
         TransactionEntity transactionEntity = null;
         try {
-            transactionEntity = transService.transfer(json);
+            transactionEntity = transService.transfer(id_acc_from, json);
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -160,11 +160,11 @@ public class TransactionController {
      * @throws ParseException
      */
     @RequestMapping(value = "/trans/history", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<ResultBean> getListTransHistory(@RequestBody String json) throws ParseException {
+    public ResponseEntity<ResultBean> getListTransHistory() throws ParseException {
         log.debug("### getListTransHistory start ###");
         ResultBean resultBean = null;
         try {
-            resultBean = transService.getListTransHistory(json);
+            resultBean = transService.getListTransHistory();
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -185,11 +185,11 @@ public class TransactionController {
      * @throws ParseException
      */
     @RequestMapping(value = "/trans/transfer", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<ResultBean> getListTransFer(@RequestBody String json) throws ParseException {
+    public ResponseEntity<ResultBean> getListTransFer() throws ParseException {
         log.debug("### getListTransFer start ###");
         ResultBean resultBean = null;
         try {
-            resultBean = transService.getListTransFer(json);
+            resultBean = transService.getListTransFer();
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -210,12 +210,12 @@ public class TransactionController {
      * @return ResponseEntity<ResultBean>
      * @throws ParseException
      */
-    @RequestMapping(value = "/trans/transfer/{id}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<ResultBean> getListTransFerByIdBank(@RequestBody String json, @PathVariable Integer id) throws ParseException {
+    @RequestMapping(value = "/trans/transfer/bank", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<ResultBean> getListTransFerByIdBank(@RequestParam Integer id_bank) throws ParseException {
         log.debug("### getListTransFer start ###");
         ResultBean resultBean = null;
         try {
-            resultBean = transService.getListTransFer(json, id);
+            resultBean = transService.getListTransFerByIdBank(id_bank);
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -236,12 +236,12 @@ public class TransactionController {
      * @throws ParseException
      */
     @RequestMapping(value = "/trans/export", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<ResultBean> outputToCSV(@RequestBody String json) throws ParseException {
+    public ResponseEntity<ResultBean> outputToCSV() throws ParseException {
         log.debug("### outputToCSV start ###");
         ResultBean resultBean = null;
         String file = "";
         try {
-            file = transService.outputTransactionToCSV(json);
+            file = transService.outputTransactionToCSV();
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());

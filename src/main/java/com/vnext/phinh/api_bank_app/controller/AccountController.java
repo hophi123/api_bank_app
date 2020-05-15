@@ -61,7 +61,7 @@ public class AccountController {
             return new ResponseEntity<ResultBean>(resultBean, HttpStatus.BAD_GATEWAY);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<ResultBean>(resultBean, HttpStatus.BAD_GATEWAY);
+            return new ResponseEntity<ResultBean>(HttpStatus.BAD_GATEWAY);
         }
         resultBean = new ResultBean(accountEntity, "200", "Account successfully created!");
         log.debug("### createUser end ###");

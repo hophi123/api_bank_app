@@ -15,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.vnext.phinh.api_bank_app.bean.AccountEntity;
+import com.vnext.phinh.api_bank_app.bean.UserEntity;
+import com.vnext.phinh.api_bank_app.common.EncodeDecode;
 import com.vnext.phinh.api_bank_app.dao.AccountDao;
+import com.vnext.phinh.api_bank_app.dao.UserDao;
 import com.vnext.phinh.api_bank_app.service.AccountService;
-import com.vnext.phinh.api_bank_app.service.AuthService;
 import com.vnext.phinh.api_bank_app.service.BankService;
 import com.vnext.phinh.api_bank_app.utils.ApiValidateException;
+import com.vnext.phinh.api_bank_app.utils.DataUtils;
 
 /**
  * [OVERVIEW] XXXXX.
@@ -38,9 +41,11 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AccountDao accountDao;
     @Autowired
+    private UserDao userDao;
+    @Autowired
     private BankService bankService;
     @Autowired
-    private AuthService authService;
+    EncodeDecode encodeDecode;
 
     private static final Log log = LogFactory.getLog(UserServiceImpl.class);
 
@@ -54,17 +59,22 @@ public class AccountServiceImpl implements AccountService {
         log.debug("### createAccount start ###");
         AccountEntity accountEntity = new AccountEntity();
         JSONObject jsonAccount = new JSONObject(json);
+        String phone = DataUtils.getPhoneByToken();
+        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        Integer idUser = userEntity.getId();
         if (jsonAccount.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field!");
-        } else if (bankService.findBankById(jsonAccount.getInt("id_bank")) == null) {
+        }
+
+        if (bankService.findBankById(jsonAccount.getInt("id_bank")) == null) {
             throw new ApiValidateException("400", "id_bank", "Bank id does not exist!");
-        } else if (accountDao.findAccount(authService.checkLogin(jsonAccount.getString("phone_number"), jsonAccount.getString("password")),
-                jsonAccount.getInt("id_bank")) != null) {
+        }
+
+        if (accountDao.findAccount(idUser, jsonAccount.getInt("id_bank")) != null) {
             throw new ApiValidateException("400", "account", "Account already exists!");
         } else {
-            Integer id_user = authService.checkLogin(jsonAccount.getString("phone_number"), jsonAccount.getString("password"));
             Integer id_bank = jsonAccount.getInt("id_bank");
-            accountEntity.setId_user(id_user);
+            accountEntity.setId_user(idUser);
             accountEntity.setId_bank(id_bank);
             accountEntity.setBalance(0D);
             accountDao.createAccount(accountEntity);

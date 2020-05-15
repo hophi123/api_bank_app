@@ -54,7 +54,7 @@ public interface TransactionService {
      * @return TransactionEntity
      * @throws ApiValidateException
      */
-    public TransactionEntity withdraw(String json) throws ApiValidateException;
+    public TransactionEntity withdraw(Integer id, String json) throws ApiValidateException;
 
     /**
      * getFee
@@ -92,7 +92,7 @@ public interface TransactionService {
      * @return TransactionEntity
      * @throws ApiValidateException
      */
-    public TransactionEntity transfer(String json) throws ApiValidateException;
+    public TransactionEntity transfer(Integer id, String json) throws ApiValidateException;
 
     /**
      * getListTransHistory
@@ -101,7 +101,7 @@ public interface TransactionService {
      * @return ResultBean
      * @throws ApiValidateException
      */
-    public ResultBean getListTransHistory(String json) throws ApiValidateException;
+    public ResultBean getListTransHistory() throws ApiValidateException;
 
     /**
      * getListTransFer
@@ -110,7 +110,7 @@ public interface TransactionService {
      * @return ResultBean
      * @throws ApiValidateException
      */
-    public ResultBean getListTransFer(String json) throws ApiValidateException;
+    public ResultBean getListTransFer() throws ApiValidateException;
     
     /**
      * getListTransFer
@@ -120,7 +120,7 @@ public interface TransactionService {
      * @return ResultBean
      * @throws ApiValidateException
      */
-    public ResultBean getListTransFer(String json, Integer id_bank) throws ApiValidateException;
+    public ResultBean getListTransFerByIdBank(Integer id_bank) throws ApiValidateException;
     
     /**
      * outputTransactionToCSV
@@ -130,6 +130,6 @@ public interface TransactionService {
      * @throws JSONException
      * @throws ApiValidateException
      */
-    public String outputTransactionToCSV(String json) throws JSONException, ApiValidateException;
+    public String outputTransactionToCSV() throws JSONException, ApiValidateException;
     
 }

@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import com.vnext.phinh.api_bank_app.bean.TransactionEntity;
-import com.vnext.phinh.api_bank_app.model.TransHistoryResponse;
+import com.vnext.phinh.api_bank_app.response.TransHistoryResponse;
 
 /**
  * 

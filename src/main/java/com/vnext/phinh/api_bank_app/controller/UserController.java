@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vnext.phinh.api_bank_app.bean.ResultBean;
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
+import com.vnext.phinh.api_bank_app.response.JwtResponse;
 import com.vnext.phinh.api_bank_app.service.UserService;
 import com.vnext.phinh.api_bank_app.service.impl.UserServiceImpl;
 import com.vnext.phinh.api_bank_app.utils.ApiValidateException;
@@ -50,7 +51,7 @@ public class UserController {
      * @param json
      * @return ResponseEntity<ResultBean>
      */
-    @RequestMapping(value = "/user", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<ResultBean> createUser(@RequestBody String json) {
         log.debug("### createUser start ###");
         UserEntity userEntity = null;
@@ -77,7 +78,7 @@ public class UserController {
      * @param json
      * @return ResponseEntity<ResultBean>
      */
-    @RequestMapping(value = "/user", method = RequestMethod.PUT, produces = "application/json")
+    @RequestMapping(value = "/user/update", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<ResultBean> updateUser(@RequestBody String json) {
         log.debug("### updateUser start ###");
         UserEntity userEntity = null;
@@ -105,11 +106,11 @@ public class UserController {
      * @return ResponseEntity<ResultBean>
      */
     @RequestMapping(value = "/user/balance", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<ResultBean> getBalance(@RequestBody String json) {
+    public ResponseEntity<ResultBean> getBalance() {
         log.debug("### getBalance start ###");
         ResultBean resultBean = null;
         try {
-            resultBean = userService.getBalance(json);
+            resultBean = userService.getBalance();
         } catch (ApiValidateException e) {
             e.printStackTrace();
             resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
@@ -121,4 +122,28 @@ public class UserController {
         return new ResponseEntity<ResultBean>(resultBean, HttpStatus.BAD_GATEWAY);
     }
 
+    /**
+     * loginToken
+     * @author: (VNEXT) PhiNH
+     * @param json
+     * @return ResponseEntity<ResultBean>
+     */
+    @RequestMapping(value = "/user/login", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<ResultBean> loginToken(@RequestBody String json) {
+        log.debug("### loginToken START ###");
+        JwtResponse jwtResponse = null;
+        ResultBean resultBean = null;
+        try {
+            jwtResponse = userService.login(json);
+        } catch (ApiValidateException e) {
+            resultBean = new ResultBean(e.getCode(), e.getField(), e.getMessage());
+            return new ResponseEntity<ResultBean>(resultBean, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            resultBean = new ResultBean("401", e.getMessage());
+            return new ResponseEntity<ResultBean>(resultBean, HttpStatus.UNAUTHORIZED);
+        }
+        resultBean = new ResultBean(jwtResponse, "200", "OK");
+        log.debug("### loginToken END ###");
+        return new ResponseEntity<ResultBean>(resultBean, HttpStatus.OK);
+    }
 }

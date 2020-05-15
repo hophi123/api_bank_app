@@ -4,7 +4,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-package com.vnext.phinh.api_bank_app.model;
+package com.vnext.phinh.api_bank_app.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

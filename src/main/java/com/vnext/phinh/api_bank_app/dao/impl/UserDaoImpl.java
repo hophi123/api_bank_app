@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
 import com.vnext.phinh.api_bank_app.dao.UserDao;
-import com.vnext.phinh.api_bank_app.model.BalanceResponse;
+import com.vnext.phinh.api_bank_app.response.BalanceResponse;
 import com.vnext.phinh.api_bank_app.service.impl.UserServiceImpl;
 
 /**
@@ -92,7 +92,7 @@ public class UserDaoImpl implements UserDao {
     public List<BalanceResponse> getBalanceById(int id) {
         log.debug("### getBalanceById start ###");
         StringBuilder sql = new StringBuilder();
-        sql.append(" SELECT new com.vnext.phinh.api_bank_app.model.BalanceResponse( ");
+        sql.append(" SELECT new com.vnext.phinh.api_bank_app.response.BalanceResponse( ");
         sql.append("    u.name, ");
         sql.append(" a.balance, ");
         sql.append("    b.name As bank_name) ");
@@ -166,6 +166,28 @@ public class UserDaoImpl implements UserDao {
             e.printStackTrace();
         }
         log.debug("### findOtherPhoneNumber end ###");
+        return userEntity;
+    }
+
+    @Override
+    public UserEntity findUserByName(String name) {
+        log.debug("### findUserByName start ###");
+        UserEntity userEntity = null;
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT u ");
+        sql.append(" FROM ");
+        sql.append("    UserEntity u ");
+        sql.append(" WHERE ");
+        sql.append("    u.name = :name ");
+        Query query = this.entityManager.createQuery(sql.toString());
+        query.setParameter("name", name);
+        try {
+            userEntity = (UserEntity) query.getSingleResult();
+        } catch (NoResultException e) {
+            e.printStackTrace();
+            return null;
+        }
+        log.debug("### findUserByName end ###");
         return userEntity;
     }
 

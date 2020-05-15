@@ -8,6 +8,7 @@ package com.vnext.phinh.api_bank_app.service;
 
 import com.vnext.phinh.api_bank_app.bean.ResultBean;
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
+import com.vnext.phinh.api_bank_app.response.JwtResponse;
 import com.vnext.phinh.api_bank_app.utils.ApiValidateException;
 
 /**
@@ -72,5 +73,23 @@ public interface UserService {
      * @return ResultBean
      * @throws ApiValidateException
      */
-    public ResultBean getBalance(String json) throws ApiValidateException;
+    public ResultBean getBalance() throws ApiValidateException;
+
+    /**
+     * getByUserName
+     * @author: (VNEXT) PhiNH
+     * @param username
+     * @return UserEntity
+     */
+    public UserEntity getByUsername(String name);
+
+    /**
+     * login
+     * @author: (VNEXT) PhiNH
+     * @param json
+     * @return JwtResponse
+     * @throws ApiValidateException
+     * @throws Exception
+     */
+    public JwtResponse login(String json) throws ApiValidateException, Exception;
 }

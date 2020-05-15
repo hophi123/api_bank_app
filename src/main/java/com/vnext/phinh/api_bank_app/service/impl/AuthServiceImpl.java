@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
+import com.vnext.phinh.api_bank_app.common.EncodeDecode;
 import com.vnext.phinh.api_bank_app.dao.AuthDao;
 import com.vnext.phinh.api_bank_app.service.AuthService;
 import com.vnext.phinh.api_bank_app.service.UserService;
@@ -39,6 +40,8 @@ public class AuthServiceImpl implements AuthService {
     private AuthDao authdao;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EncodeDecode encodeDecode;
 
     private static final Log log = LogFactory.getLog(UserServiceImpl.class);
 
@@ -55,15 +58,21 @@ public class AuthServiceImpl implements AuthService {
         JSONObject jsonAuth = new JSONObject(json);
         if (jsonAuth.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field!");
-        } else if (userService.findByPhoneNumber(jsonAuth.getString("phone_number")) == null) {
+        }
+
+        if (userService.findByPhoneNumber(jsonAuth.getString("phone_number")) == null) {
             throw new ApiValidateException("400", "id", "Phone numbers does not exist!");
-        } else if (!jsonAuth.getString("password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
+        }
+
+        if (!jsonAuth.getString("password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
             throw new ApiValidateException("400", "id", "Password must be the correct format(Ex:Abc@123)!");
-        } else if (authdao.checkLogin(jsonAuth.getString("phone_number"), jsonAuth.getString("password")) == null) {
+        }
+
+        if (authdao.checkLogin(jsonAuth.getString("phone_number"), encodeDecode.encode(jsonAuth.getString("password"))) == null) {
             throw new ApiValidateException("400", "phone_number or password", "Incorrect phone numbers or password!");
         } else {
             String phone_number = jsonAuth.getString("phone_number");
-            String password = jsonAuth.getString("password");
+            String password = encodeDecode.encode(jsonAuth.getString("password"));
             userEntity = authdao.checkLogin(phone_number, password);
             log.debug("### checkLogin end ###");
             return userEntity;
@@ -83,9 +92,9 @@ public class AuthServiceImpl implements AuthService {
         UserEntity userEntity = null;
         if (userService.findByPhoneNumber(phone_number) == null) {
             throw new ApiValidateException("400", "id", "Phone numbers does not exist!");
-        } else if (!password.matches(RegexUtils.PASSWORD_PATTERN)) {
-            throw new ApiValidateException("400", "password", "Password must be the correct format(Ex:Abc@123)!");
-        } else if (authdao.checkLogin(phone_number, password) == null) {
+        }
+
+        if (authdao.checkLogin(phone_number, password) == null) {
             throw new ApiValidateException("400", "phone_number or password", "Incorrect phone numbers or password!");
         } else {
             userEntity = authdao.checkLogin(phone_number, password);

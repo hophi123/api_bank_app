@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import com.vnext.phinh.api_bank_app.bean.TransactionEntity;
 import com.vnext.phinh.api_bank_app.dao.TransactionDao;
-import com.vnext.phinh.api_bank_app.model.TransHistoryResponse;
+import com.vnext.phinh.api_bank_app.response.TransHistoryResponse;
 import com.vnext.phinh.api_bank_app.service.impl.UserServiceImpl;
 
 /**
@@ -67,7 +67,9 @@ public class TransactionDaoImpl implements TransactionDao {
         sql.append(" AND ");
         sql.append("    t.date < :date2 ");
         Query query = this.entityManager.createQuery(sql.toString());
-        query.setParameter("id_user_from", id).setParameter("date1", dateFrom).setParameter("date2", dateTo);
+        query.setParameter("id_user_from", id)
+        .setParameter("date1", dateFrom)
+        .setParameter("date2", dateTo);
         List<TransactionEntity> listTransaction = new ArrayList<TransactionEntity>();
         listTransaction = query.getResultList();
         log.debug("### getListTransaction end ###");
@@ -125,7 +127,7 @@ public class TransactionDaoImpl implements TransactionDao {
         log.debug("### getListTrans start ###");
         StringBuilder sql = new StringBuilder();
         List<TransHistoryResponse> listTrans = new ArrayList<TransHistoryResponse>();
-        sql.append(" SELECT new com.vnext.phinh.api_bank_app.model.TransHistoryResponse(");
+        sql.append(" SELECT new com.vnext.phinh.api_bank_app.response.TransHistoryResponse(");
         sql.append(" b.name, ");
         sql.append(" t.action, ");
         sql.append(" t.date, ");

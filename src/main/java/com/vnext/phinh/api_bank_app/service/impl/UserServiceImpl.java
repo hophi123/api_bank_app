@@ -8,6 +8,7 @@ package com.vnext.phinh.api_bank_app.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -15,15 +16,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.vnext.phinh.api_bank_app.bean.ResultBean;
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
+import com.vnext.phinh.api_bank_app.common.EncodeDecode;
 import com.vnext.phinh.api_bank_app.dao.UserDao;
-import com.vnext.phinh.api_bank_app.model.BalanceResponse;
-import com.vnext.phinh.api_bank_app.service.AuthService;
+import com.vnext.phinh.api_bank_app.dao.UserRepositoty;
+import com.vnext.phinh.api_bank_app.response.BalanceResponse;
+import com.vnext.phinh.api_bank_app.response.JwtResponse;
 import com.vnext.phinh.api_bank_app.service.UserService;
 import com.vnext.phinh.api_bank_app.utils.ApiValidateException;
+import com.vnext.phinh.api_bank_app.utils.DataUtils;
+import com.vnext.phinh.api_bank_app.utils.JwtTokenUtil;
 import com.vnext.phinh.api_bank_app.utils.RegexUtils;
 
 /**
@@ -44,7 +51,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
-    private AuthService authService;
+    private UserRepositoty userRepositoty;
+    @Autowired
+    private UserDetailsService detailsService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private EncodeDecode encodeDecode;
 
     private static final Log log = LogFactory.getLog(UserServiceImpl.class);
 
@@ -60,22 +73,32 @@ public class UserServiceImpl implements UserService {
         JSONObject jsonUser = new JSONObject(json);
         if (jsonUser.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field!");
-        } else if ((jsonUser.getString("name").trim().length() == 0) || (jsonUser.getString("name").trim().length() > 10)) {
+        }
+
+        if ((jsonUser.getString("name").trim().length() == 0) || (jsonUser.getString("name").trim().length() > 10)) {
             throw new ApiValidateException("400", "Name cannot be more than 10 character!");
-        } else if (!jsonUser.getString("phone_number").trim().matches(RegexUtils.PHONENUMBER_PATTERN)) {
+        }
+
+        if (!jsonUser.getString("phone_number").trim().matches(RegexUtils.PHONENUMBER_PATTERN)) {
             throw new ApiValidateException("400", "Phone numbers from 10 to 11 numbers!");
-        } else if (userDao.findByPhoneNumber(jsonUser.getString("phone_number")) != null) {
+        }
+
+        if (userDao.findByPhoneNumber(jsonUser.getString("phone_number")) != null) {
             throw new ApiValidateException("400", "Phone numbers already exist!");
-        } else if (!jsonUser.getString("dateofbirth").trim().matches(RegexUtils.DATE_PATTERN)) {
-            throw new ApiValidateException("400", "Date must be the correct format(Ex:1998/07/03!");
-        } else if (!jsonUser.getString("password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
-            throw new ApiValidateException("400", "Password must be the correct format(Ex:Abc@123)!");
+        }
+
+        if (!jsonUser.getString("dateofbirth").trim().matches(RegexUtils.DATE_PATTERN)) {
+            throw new ApiValidateException("400", "Date must be the correct format(Ex:1998/07/03!)");
+        }
+
+        if (!jsonUser.getString("password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
+            throw new ApiValidateException("400", "Password must be the correct format(Ex:Abc@123) and must not exceed 8 characters!");
         } else {
             UserEntity userEntity = new UserEntity();
             userEntity.setName(jsonUser.getString("name"));
             userEntity.setPhone_number(jsonUser.getString("phone_number"));
             userEntity.setDateofbirth(jsonUser.getString("dateofbirth"));
-            userEntity.setPassword(jsonUser.getString("password"));
+            userEntity.setPassword(this.encodeDecode.encode(jsonUser.getString("password")));
             userDao.createUser(userEntity);
             log.debug("### createUser end ###");
             return userEntity;
@@ -93,25 +116,37 @@ public class UserServiceImpl implements UserService {
     public UserEntity updateUser(String json) throws ApiValidateException {
         log.debug("### updateUser start ###");
         JSONObject jsonUser = new JSONObject(json);
-        Integer id = authService.checkLogin(jsonUser.getString("phone_number"), jsonUser.getString("password"));
+        String phone = DataUtils.getPhoneByToken();
+        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        Integer idUser = userEntity.getId();
         if (jsonUser.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field");
-        } else if ((jsonUser.getString("new_name").trim().length() == 0) || (jsonUser.getString("new_name").trim().length() > 10)) {
+        }
+
+        if ((jsonUser.getString("new_name").trim().length() == 0) || (jsonUser.getString("new_name").trim().length() > 10)) {
             throw new ApiValidateException("400", "New name cannot be more than 10 character!");
-        } else if (!jsonUser.getString("new_phone_number").trim().matches(RegexUtils.PHONENUMBER_PATTERN)) {
+        }
+
+        if (!jsonUser.getString("new_phone_number").trim().matches(RegexUtils.PHONENUMBER_PATTERN)) {
             throw new ApiValidateException("400", "New phone numbers from 10 to 11 numbers!");
-        } else if (userDao.findOtherPhoneNumber(jsonUser.getString("new_phone_number"), id) != null) {
+        }
+
+        if (userDao.findOtherPhoneNumber(jsonUser.getString("new_phone_number"), idUser) != null) {
             throw new ApiValidateException("400", "New phone numbers already exist!");
-        } else if (!jsonUser.getString("new_dateofbirth").trim().matches(RegexUtils.DATE_PATTERN)) {
+        }
+
+        if (!jsonUser.getString("new_dateofbirth").trim().matches(RegexUtils.DATE_PATTERN)) {
             throw new ApiValidateException("400", "New date must be the correct format(Ex:1998/07/03!");
-        } else if (!jsonUser.getString("new_password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
+        }
+
+        if (!jsonUser.getString("new_password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
             throw new ApiValidateException("400", "New password must be the correct format(Ex:Abc@123)!");
         } else {
-            UserEntity userEntity = userDao.findById(id);
+            userEntity = userDao.findById(idUser);
             userEntity.setName(jsonUser.getString("new_name"));
             userEntity.setPhone_number(jsonUser.getString("new_phone_number"));
             userEntity.setDateofbirth(jsonUser.getString("new_dateofbirth"));
-            userEntity.setPassword(jsonUser.getString("new_password"));
+            userEntity.setPassword(encodeDecode.encode(jsonUser.getString("new_password")));
             userDao.updateUser(userEntity);
             log.debug("### updateUser end ###");
             return userEntity;
@@ -126,12 +161,13 @@ public class UserServiceImpl implements UserService {
      * @return ResultBean(listBalanceResponse, "200", "Find success!")
      */
     @Override
-    public ResultBean getBalance(String json) throws ApiValidateException {
+    public ResultBean getBalance() throws ApiValidateException {
         log.debug("### getBalance start ###");
+        String phone = DataUtils.getPhoneByToken();
+        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        Integer idUser = userEntity.getId();
         List<BalanceResponse> listBalanceResponse = new ArrayList<BalanceResponse>();
-        JSONObject jsonUser = new JSONObject(json);
-        int id = authService.checkLogin(jsonUser.getString("phone_number"), jsonUser.getString("password"));
-        listBalanceResponse = userDao.getBalanceById(id);
+        listBalanceResponse = userDao.getBalanceById(idUser);
         if (listBalanceResponse.isEmpty()) {
             throw new ApiValidateException("400", "User is not exist");
         } else {
@@ -181,6 +217,50 @@ public class UserServiceImpl implements UserService {
         userEntity = userDao.findByPhoneNumber(phone_number);
         log.debug("### findByPhoneNumber end ###");
         return userEntity;
+    }
+
+    /**
+     * getByUsername
+     * @author (VNEXT) PhiNH
+     * @param name
+     * @return UserEntity userEntity
+     */
+    @Override
+    public UserEntity getByUsername(String name) {
+        log.debug("### getByUsername start ###");
+        Optional<UserEntity> userOptional = userRepositoty.findByName(name);
+        log.debug("### getByUsername end ###");
+        return userOptional.orElse(null);
+    }
+
+    /**
+     * login
+     * @author (VNEXT) PhiNH
+     * @param name
+     * @return JwtResponse
+     */
+    @Override
+    public JwtResponse login(String json) throws ApiValidateException, Exception {
+        log.debug("### login start ###");
+        JSONObject jsonUser = new JSONObject(json);
+        if (jsonUser.isEmpty()) {
+            throw new ApiValidateException("400", "Please enter all field");
+        }
+        String phone = jsonUser.getString("phone");
+        String password = encodeDecode.encode(jsonUser.getString("password"));
+        UserDetails userDetails = detailsService.loadUserByUsername(phone);
+        if (!password.equals(userDetails.getPassword())) {
+            throw new ApiValidateException("400", "Password is not valid");
+        } else {
+            String token = jwtTokenUtil.generateToken(userDetails);
+            System.out.println(token);
+            UserEntity user = userDao.findByPhoneNumber(phone);
+            System.out.println(user.toString());
+            JwtResponse jwtResponse = new JwtResponse(token, user);
+            log.debug("### login end ###");
+            return jwtResponse;
+        }
+
     }
 
 }

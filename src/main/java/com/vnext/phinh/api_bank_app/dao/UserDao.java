@@ -8,7 +8,7 @@ package com.vnext.phinh.api_bank_app.dao;
 import java.util.List;
 
 import com.vnext.phinh.api_bank_app.bean.UserEntity;
-import com.vnext.phinh.api_bank_app.model.BalanceResponse;
+import com.vnext.phinh.api_bank_app.response.BalanceResponse;
 
 /**
  * 
@@ -68,4 +68,6 @@ public interface UserDao {
      * @return List<BalanceResponse>
      */
     public List<BalanceResponse> getBalanceById(int id);
+    
+    public UserEntity findUserByName(String name);
 }
