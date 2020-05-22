@@ -112,29 +112,29 @@ public class UserDaoImpl implements UserDao {
     }
 
     /**
-     * findByPhoneNumber
+     * findByEmail
      * @author: (VNEXT) PhiNH
      * @param phone_number
      * @return UserEntity
      */
     @Override
-    public UserEntity findByPhoneNumber(String phone_number) {
-        log.debug("### findByPhoneNumber start ###");
+    public UserEntity findByEmail(String email) {
+        log.debug("### findByEmail start ###");
         UserEntity userEntity = null;
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT u ");
         sql.append(" FROM ");
         sql.append("    UserEntity u ");
         sql.append(" WHERE ");
-        sql.append("    u.phone_number = :phone_number ");
+        sql.append("    u.email = :email ");
         Query query = this.entityManager.createQuery(sql.toString());
-        query.setParameter("phone_number", phone_number);
+        query.setParameter("email", email);
         try {
             userEntity = (UserEntity) query.getSingleResult();
         } catch (NoResultException e) {
             e.printStackTrace();
         }
-        log.debug("### findByPhoneNumber end ###");
+        log.debug("### findByEmail end ###");
         return userEntity;
     }
 

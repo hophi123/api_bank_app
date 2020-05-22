@@ -87,15 +87,15 @@ public class TransactionServiceImpl implements TransactionService {
         if (jsonTrans.isEmpty()) {
             throw new ApiValidateException("400", "", "Please enter all field");
         } else {
-            String phone = DataUtils.getPhoneByToken();
-            UserEntity userEntity = userDao.findByPhoneNumber(phone);
-            Integer id = userEntity.getId();
+            String email = DataUtils.getEmailByToken();
+            UserEntity userEntity = userDao.findByEmail(email);
+            Integer idUser = userEntity.getId();
             String dateFrom = jsonTrans.getString("date_from");
             String dateTo = jsonTrans.getString("date_to");
             dateFrom += " 00:00:00";
             dateTo += " 23:59:59";
             List<TransactionEntity> listTrans = new ArrayList<TransactionEntity>();
-            listTrans = transactiondao.getListTransaction(id, dateFrom, dateTo);
+            listTrans = transactiondao.getListTransaction(idUser, dateFrom, dateTo);
             log.debug("### getListTransDateToDate end ###");
             return new ResultBean(listTrans, "200", "Get list SUCCESS");
         }
@@ -115,8 +115,8 @@ public class TransactionServiceImpl implements TransactionService {
         SimpleDateFormat datefomat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         TransactionEntity transactionEntity = new TransactionEntity();
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         JSONObject jsonTrans = new JSONObject(json);
         if (jsonTrans.isEmpty()) {
@@ -171,8 +171,8 @@ public class TransactionServiceImpl implements TransactionService {
         Date date = new Date();
         TransactionEntity transEntity = new TransactionEntity();
         Double fee = 0D;
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
 
         JSONObject jsonTrans = new JSONObject(json);
@@ -226,8 +226,8 @@ public class TransactionServiceImpl implements TransactionService {
         Date date = new Date();
         TransactionEntity transEntity = new TransactionEntity();
         JSONObject jsonTrans = new JSONObject(json);
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         if (jsonTrans.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field.");
@@ -294,9 +294,10 @@ public class TransactionServiceImpl implements TransactionService {
         List<TransHistoryResponse> listTransHistoryResponse = new ArrayList<TransHistoryResponse>();
         List<TransactionEntity> listTrans = new ArrayList<TransactionEntity>();
         String bank_name = "";
-        String phone = DataUtils.getPhoneByToken();
-        int id = userDao.findByPhoneNumber(phone).getId();
-        listTrans = transactiondao.getListTransHistory(id);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
+        Integer idUser = userEntity.getId();
+        listTrans = transactiondao.getListTransHistory(idUser);
         for (TransactionEntity transactionEntity : listTrans) {
             TransHistoryResponse transHistoryResponse = new TransHistoryResponse();
             transHistoryResponse.setAction(transactionEntity.getAction());
@@ -325,8 +326,8 @@ public class TransactionServiceImpl implements TransactionService {
         String bank_name_to = "";
         String user_name_from = "";
         String user_name_to = "";
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         listTrans = transactiondao.getListTransfer(idUser);
         for (TransactionEntity transactionEntity : listTrans) {
@@ -424,8 +425,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String outputTransactionToCSV() throws JSONException, ApiValidateException {
         log.debug("### outputTransactionToCSV start ###");
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         List<TransHistoryResponse> listTrans = transactiondao.getListTrans(idUser);
         String fileName = RenameFile.renameFile();
@@ -471,8 +472,8 @@ public class TransactionServiceImpl implements TransactionService {
         String bank_name_to = "";
         String user_name_from = "";
         String user_name_to = "";
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         listTrans = transactiondao.getListTransfer(idUser, id_bank);
         for (TransactionEntity transactionEntity : listTrans) {

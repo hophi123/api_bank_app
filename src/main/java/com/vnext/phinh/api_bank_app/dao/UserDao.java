@@ -50,7 +50,7 @@ public interface UserDao {
      * @param phone_number
      * @return UserEntity
      */
-    public UserEntity findByPhoneNumber(String phone_number);
+    public UserEntity findByEmail(String email);
 
     /**
      * findOtherPhoneNumber

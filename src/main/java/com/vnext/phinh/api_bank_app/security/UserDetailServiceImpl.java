@@ -37,11 +37,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private UserDao userDao;
 
     @Override
-    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
-        if (userEntity == null) {
-            throw new UsernameNotFoundException("Phone not found");
-        }
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity userEntity = userDao.findByEmail(email);
+//        if (userEntity == null) {
+//            throw new UsernameNotFoundException("Phone not found");
+//        }
         Set<GrantedAuthority> authorities = new HashSet<>();
         return new User(userEntity.getPhone_number(), userEntity.getPassword(), authorities);
     }

@@ -60,8 +60,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiValidateException("400", "Please enter all field!");
         }
 
-        if (userService.findByPhoneNumber(jsonAuth.getString("phone_number")) == null) {
-            throw new ApiValidateException("400", "id", "Phone numbers does not exist!");
+        if (userService.findByEmail(jsonAuth.getString("email")) == null) {
+            throw new ApiValidateException("400", "id", "Email does not exist!");
         }
 
         if (!jsonAuth.getString("password").trim().matches(RegexUtils.PASSWORD_PATTERN)) {
@@ -87,17 +87,17 @@ public class AuthServiceImpl implements AuthService {
      * @return UserEntity userEntity
      */
     @Override
-    public Integer checkLogin(String phone_number, String password) throws ApiValidateException {
+    public Integer checkLogin(String email, String password) throws ApiValidateException {
         log.debug("### checkLogin start ###");
         UserEntity userEntity = null;
-        if (userService.findByPhoneNumber(phone_number) == null) {
+        if (userService.findByEmail(email) == null) {
             throw new ApiValidateException("400", "id", "Phone numbers does not exist!");
         }
 
-        if (authdao.checkLogin(phone_number, password) == null) {
+        if (authdao.checkLogin(email, password) == null) {
             throw new ApiValidateException("400", "phone_number or password", "Incorrect phone numbers or password!");
         } else {
-            userEntity = authdao.checkLogin(phone_number, password);
+            userEntity = authdao.checkLogin(email, password);
             log.debug("### checkLogin end ###");
             return userEntity.getId();
         }

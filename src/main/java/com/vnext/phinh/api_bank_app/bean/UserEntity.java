@@ -45,6 +45,12 @@ public class UserEntity implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "email")
+    private String email;
+    
+    @Column(name = "status")
+    private Integer status;
+    
     @Column(name = "phone_number")
     private String phone_number;
 
@@ -58,12 +64,14 @@ public class UserEntity implements Serializable {
         super();
     }
 
-    public UserEntity(Integer id, String name, String phone, String date, String password) {
+    public UserEntity(Integer id, String name, String email, Integer status, String phone_number, String dateofbirth, String password) {
         super();
         this.id = id;
         this.name = name;
-        this.phone_number = phone;
-        this.dateofbirth = date;
+        this.email = email;
+        this.status = status;
+        this.phone_number = phone_number;
+        this.dateofbirth = dateofbirth;
         this.password = password;
     }
 
@@ -107,4 +115,25 @@ public class UserEntity implements Serializable {
         this.password = password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+    
+    
 }

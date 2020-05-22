@@ -59,8 +59,8 @@ public class AccountServiceImpl implements AccountService {
         log.debug("### createAccount start ###");
         AccountEntity accountEntity = new AccountEntity();
         JSONObject jsonAccount = new JSONObject(json);
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         if (jsonAccount.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field!");

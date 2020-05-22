@@ -83,8 +83,8 @@ public class UserServiceImpl implements UserService {
             throw new ApiValidateException("400", "Phone numbers from 10 to 11 numbers!");
         }
 
-        if (userDao.findByPhoneNumber(jsonUser.getString("phone_number")) != null) {
-            throw new ApiValidateException("400", "Phone numbers already exist!");
+        if (userDao.findByEmail(jsonUser.getString("email")) != null) {
+            throw new ApiValidateException("400", "Email already exist!");
         }
 
         if (!jsonUser.getString("dateofbirth").trim().matches(RegexUtils.DATE_PATTERN)) {
@@ -116,8 +116,8 @@ public class UserServiceImpl implements UserService {
     public UserEntity updateUser(String json) throws ApiValidateException {
         log.debug("### updateUser start ###");
         JSONObject jsonUser = new JSONObject(json);
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         if (jsonUser.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field");
@@ -163,8 +163,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResultBean getBalance() throws ApiValidateException {
         log.debug("### getBalance start ###");
-        String phone = DataUtils.getPhoneByToken();
-        UserEntity userEntity = userDao.findByPhoneNumber(phone);
+        String email = DataUtils.getEmailByToken();
+        UserEntity userEntity = userDao.findByEmail(email);
         Integer idUser = userEntity.getId();
         List<BalanceResponse> listBalanceResponse = new ArrayList<BalanceResponse>();
         listBalanceResponse = userDao.getBalanceById(idUser);
@@ -211,10 +211,10 @@ public class UserServiceImpl implements UserService {
      * @return UserEntity userEntity
      */
     @Override
-    public UserEntity findByPhoneNumber(String phone_number) {
+    public UserEntity findByEmail(String email) {
         log.debug("### findByPhoneNumber start ###");
         UserEntity userEntity = null;
-        userEntity = userDao.findByPhoneNumber(phone_number);
+        userEntity = userDao.findByEmail(email);
         log.debug("### findByPhoneNumber end ###");
         return userEntity;
     }
@@ -246,16 +246,14 @@ public class UserServiceImpl implements UserService {
         if (jsonUser.isEmpty()) {
             throw new ApiValidateException("400", "Please enter all field");
         }
-        String phone = jsonUser.getString("phone");
+        String email = jsonUser.getString("email");
         String password = encodeDecode.encode(jsonUser.getString("password"));
-        UserDetails userDetails = detailsService.loadUserByUsername(phone);
+        UserDetails userDetails = detailsService.loadUserByUsername(email);
         if (!password.equals(userDetails.getPassword())) {
             throw new ApiValidateException("400", "Password is not valid");
         } else {
             String token = jwtTokenUtil.generateToken(userDetails);
-            System.out.println(token);
-            UserEntity user = userDao.findByPhoneNumber(phone);
-            System.out.println(user.toString());
+            UserEntity user = userDao.findByEmail(email);
             JwtResponse jwtResponse = new JwtResponse(token, user);
             log.debug("### login end ###");
             return jwtResponse;

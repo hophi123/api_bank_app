@@ -23,11 +23,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class DataUtils {
 
-    public static String getPhoneByToken() {
+    public static String getEmailByToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentPhone = authentication.getName();
-            return currentPhone;
+            String currentEmail = authentication.getName();
+            return currentEmail;
         }
         return null;
     }
